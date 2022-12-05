@@ -1,73 +1,102 @@
+import { useToggle, upperFirst } from '@mantine/hooks';
+import { useForm } from '@mantine/form';
 import {
-  Paper,
-  createStyles,
   TextInput,
   PasswordInput,
-  Checkbox,
-  Button,
-  Title,
   Text,
+  Paper,
+  Group,
+  PaperProps,
+  Button,
+  Divider,
+  Checkbox,
   Anchor,
+  Stack,
 } from '@mantine/core';
+import { GoogleButton, TwitterButton } from '../../components/SocialButtons/SocialButton';
 
-const useStyles = createStyles((theme) => ({
-  wrapper: {
-    minHeight: 900,
-    backgroundSize: 'cover',
-    backgroundImage:
-      'url(https://images.unsplash.com/photo-1484242857719-4b9144542727?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1280&q=80)',
-  },
-
-  form: {
-    borderRight: `1px solid ${
-      theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[3]
-    }`,
-    minHeight: 900,
-    maxWidth: 450,
-    paddingTop: 80,
-
-    [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
-      maxWidth: '100%',
+export function AuthenticationForm(props: PaperProps) {
+  const [type, toggle] = useToggle(['login', 'register']);
+  const form = useForm({
+    initialValues: {
+      email: '',
+      name: '',
+      password: '',
+      terms: true,
     },
-  },
 
-  title: {
-    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
-  },
+    validate: {
+      email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
+      password: (val) => (val.length <= 6 ? 'Password should include at least 6 characters' : null),
+    },
+  });
 
-  logo: {
-    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-    width: 120,
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  },
-}));
-
-export function AuthenticationImage() {
-  const { classes } = useStyles();
   return (
-    <div className={classes.wrapper}>
-      <Paper className={classes.form} radius={0} p={30}>
-        <Title order={2} className={classes.title} align="center" mt="md" mb={50}>
-          Welcome back to Mantine!
-        </Title>
+    <Paper radius="md" p="xl" withBorder {...props}>
+      <Text size="lg" weight={500}>
+        Welcome to Mantine, {type} with
+      </Text>
 
-        <TextInput label="Email address" placeholder="hello@gmail.com" size="md" />
-        <PasswordInput label="Password" placeholder="Your password" mt="md" size="md" />
-        <Checkbox label="Keep me logged in" mt="xl" size="md" />
-        <Button fullWidth mt="xl" size="md">
-          Login
-        </Button>
+      <Group grow mb="md" mt="md">
+        <GoogleButton radius="xl">Google</GoogleButton>
+        <TwitterButton radius="xl">Twitter</TwitterButton>
+      </Group>
 
-        <Text align="center" mt="md">
-          Don&apos;t have an account?{' '}
-          <Anchor<'a'> href="#" weight={700} onClick={(event) => event.preventDefault()}>
-            Register
+      <Divider label="Or continue with email" labelPosition="center" my="lg" />
+
+      <form onSubmit={form.onSubmit(() => {})}>
+        <Stack>
+          {type === 'register' && (
+            <TextInput
+              label="Name"
+              placeholder="Your name"
+              value={form.values.name}
+              onChange={(event) => form.setFieldValue('name', event.currentTarget.value)}
+            />
+          )}
+
+          <TextInput
+            required
+            label="Email"
+            placeholder="hello@mantine.dev"
+            value={form.values.email}
+            onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}
+            error={form.errors.email && 'Invalid email'}
+          />
+
+          <PasswordInput
+            required
+            label="Password"
+            placeholder="Your password"
+            value={form.values.password}
+            onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
+            error={form.errors.password && 'Password should include at least 6 characters'}
+          />
+
+          {type === 'register' && (
+            <Checkbox
+              label="I accept terms and conditions"
+              checked={form.values.terms}
+              onChange={(event) => form.setFieldValue('terms', event.currentTarget.checked)}
+            />
+          )}
+        </Stack>
+
+        <Group position="apart" mt="xl">
+          <Anchor
+            component="button"
+            type="button"
+            color="dimmed"
+            onClick={() => toggle()}
+            size="xs"
+          >
+            {type === 'register'
+              ? 'Already have an account? Login'
+              : "Don't have an account? Register"}
           </Anchor>
-        </Text>
-      </Paper>
-    </div>
+          <Button type="submit">{upperFirst(type)}</Button>
+        </Group>
+      </form>
+    </Paper>
   );
 }

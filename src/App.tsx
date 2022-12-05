@@ -1,14 +1,14 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { AuthenticationImage } from './features/counter/Counter';
+import { AuthenticationForm } from './features/counter/Counter';
 
 function App() {
   return (
     <div className="App">
      
        
-        <AuthenticationImage />
+        <AuthenticationForm />
         {/* <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
